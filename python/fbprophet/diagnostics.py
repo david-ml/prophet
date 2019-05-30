@@ -57,7 +57,7 @@ def generate_cutoffs(df, horizon, initial, period):
     return reversed(result)
 
 
-def cross_validation(model, horizon, period=None, initial=None):
+def cross_validation(model, horizon, period=None, initial=None, custom_cutoffs=False):
     """Cross-Validation for time series.
 
     Computes forecasts from historical cutoff points. Beginning from
@@ -76,6 +76,8 @@ def cross_validation(model, horizon, period=None, initial=None):
         be done at every this period. If not provided, 0.5 * horizon is used.
     initial: string with pd.Timedelta compatible style. The first training
         period will begin here. If not provided, 3 * horizon is used.
+    custom_cutoffs: list of custom cutoff dates to use instead of automatic cuts; 
+        ignored if custom_cutoffs == False
 
     Returns
     -------
@@ -101,7 +103,10 @@ def cross_validation(model, horizon, period=None, initial=None):
             msg += 'Consider increasing initial.'
             logger.warning(msg)
 
-    cutoffs = generate_cutoffs(df, horizon, initial, period)
+    if type(custom_cutoffs) == list:
+        cutoffs = custom_cutoffs
+    else:
+        cutoffs = generate_cutoffs(df, horizon, initial, period)
     predicts = []
     for cutoff in cutoffs:
         # Generate new object with copying fitting options
